@@ -1,0 +1,24 @@
+{
+  "project": {
+    "dir": "/Users/leo/go/src/jd-mining-server"
+  },
+  "influx": {
+    "url": "",
+    "user": "",
+    "pwd": "",
+    "dbName": ""
+  },
+  "jd": [
+    {
+      "user": "leo",
+      "pin": "",
+      "tgt": "",
+      "getZXQC": true,
+      "collect": false
+    }
+  ],
+  "wechat": {
+    "api": "",
+    "token": ""
+  }
+}
