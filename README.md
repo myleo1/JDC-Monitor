@@ -38,9 +38,30 @@
 
 7、wechat.api为微信推送的api地址，wechat.token请参考https://github.com/myleo1/wechat-work-pusher
 
+## Grafana配置
+
+TODO
+
 ## 效果展示
+
+### grafana可视化展示
 
 ![image](https://user-images.githubusercontent.com/66349676/111759475-993a9980-88d8-11eb-874a-26500c1d5398.png)
 
+
+
+### 积分推送展示
+
 ![image](https://user-images.githubusercontent.com/66349676/111759767-ecace780-88d8-11eb-9bfa-05df471bf51c.png)
 
+
+
+## TODO
+
+1、如果使用的人多可以完善一键部署
+
+2、grafana需要一定数据库基础，后续考虑使用echarts做web端或者小程序端可视化
+
+3、修改抓包登陆，直接手机验证码登陆
+
+4、完善成一个完整的云监工web应用（遥遥无期）
