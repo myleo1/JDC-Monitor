@@ -2,6 +2,7 @@ package task
 
 import (
 	"fmt"
+	"github.com/mizuki1412/go-core-kit/library/commonkit"
 	"github.com/mizuki1412/go-core-kit/service/cronkit"
 	"github.com/mizuki1412/go-core-kit/service/influxkit"
 	"github.com/spf13/cast"
@@ -22,10 +23,12 @@ func CollectTask(pin, tgt string) {
 	//采集路由器数据
 	cronkit.AddFunc("@every 1m", func() {
 		for _, v := range model.RouterMap[pin] {
-			s := service.GetPCDNStatus(v.FeedId, pin, tgt)
-			sql := fmt.Sprintf("%s ip=%s,online=%s,cpu=%s,mem=%s,upload=%s,download=%s,rom=%s %d", v.Mac, influxkit.Decorate(s.Ip), s.OnlineTime, s.Cpu, s.Mem, s.Upload, s.Download, influxkit.Decorate(s.Rom), time.Now().UnixNano())
-			influxkit.WriteDefaultDB(sql)
-			//log.Println(sql)
+			commonkit.RecoverFuncWrapper(func() {
+				s := service.GetPCDNStatus(v.FeedId, pin, tgt)
+				sql := fmt.Sprintf("%s ip=%s,online=%s,cpu=%s,mem=%s,upload=%s,download=%s,rom=%s %d", v.Mac, influxkit.Decorate(s.Ip), s.OnlineTime, s.Cpu, s.Mem, s.Upload, s.Download, influxkit.Decorate(s.Rom), time.Now().UnixNano())
+				influxkit.WriteDefaultDB(sql)
+				//log.Println(sql)
+			})
 		}
 	})
 }
