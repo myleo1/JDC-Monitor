@@ -14,13 +14,13 @@ import (
 )
 
 func InitRouterList(pin, tgt string) {
-	model.RouterMap[pin] = ListRouter(pin, tgt)
-	if len(model.RouterMap[pin]) == 0 {
+	model.RouterMap.Set(pin, ListRouter(pin, tgt))
+	if model.RouterMap.Len(pin) == 0 {
 		logkit.Fatal("获取路由器列表失败")
 	}
 }
 
-//获取路由器状态:ip,cpu,memory,rom,上传下载等信息
+// GetPCDNStatus 获取路由器状态:ip,cpu,memory,rom,上传下载等信息
 func GetPCDNStatus(feedId string, pin string, tgt string) *model.RouterStatus {
 	accessKey := "b8f9c108c190a39760e1b4e373208af5cd75feb4"
 	body := `{"feed_id":"` + feedId + `","command":[{"stream_id":"SetParams","current_value":"{\n  \"cmd\" : \"get_router_status_detail\"\n}"}]}`
@@ -54,7 +54,7 @@ func GetPCDNStatus(feedId string, pin string, tgt string) *model.RouterStatus {
 	return s
 }
 
-//获取路由器列表,得到mac、name等信息
+// ListRouter 获取路由器列表,得到mac、name等信息
 func ListRouter(pin string, tgt string) []*model.Router {
 	accessKey := "b8f9c108c190a39760e1b4e373208af5cd75feb4"
 	body := `{"appversion":"2.7.3","appplatform":"iPhone11,8","appplatformversion":"13.7"}`
@@ -82,6 +82,7 @@ func ListRouter(pin string, tgt string) []*model.Router {
 			r.Mac = v.Get("device_id").String()
 			r.DeviceName = v.Get("device_name").String()
 			r.FeedId = v.Get("feed_id").String()
+			r.Status = v.Get("status").String()
 			routerList = append(routerList, r)
 		}
 		return routerList
@@ -89,7 +90,7 @@ func ListRouter(pin string, tgt string) []*model.Router {
 	return nil
 }
 
-//获取剩余总收益(扣除已兑换的) -未使用
+// GetTotalPoints 获取剩余总收益(扣除已兑换的) -未使用
 func GetTotalPoints(wsKey string) int64 {
 	client := resty.New()
 	resp, err := client.R().
@@ -102,7 +103,7 @@ func GetTotalPoints(wsKey string) int64 {
 	return res
 }
 
-//获取今日总收益
+// GetTodayPoints 获取今日总收益
 func GetTodayPoints(wsKey string) int64 {
 	client := resty.New()
 	resp, err := client.R().
@@ -115,7 +116,7 @@ func GetTodayPoints(wsKey string) int64 {
 	return res
 }
 
-//获取单个路由器总收益(扣除已兑换的)
+// GetRouterPoints 获取单个路由器总收益(扣除已兑换的)
 func GetRouterPoints(mac, wsKey string) int64 {
 	client := resty.New()
 	resp, err := client.R().
@@ -129,7 +130,7 @@ func GetRouterPoints(mac, wsKey string) int64 {
 	return res
 }
 
-//获取单个总收益、坐享其成打卡天数
+// GetWaitFreeDay 获取单个总收益、坐享其成打卡天数
 func GetWaitFreeDay(mac, wsKey string) int64 {
 	client := resty.New()
 	resp, err := client.R().
@@ -143,7 +144,7 @@ func GetWaitFreeDay(mac, wsKey string) int64 {
 	return res
 }
 
-//获取单台总收益、今日收益汇总
+// GetPointsDetail 获取单台总收益、今日收益汇总
 func GetPointsDetail(pin, wsKey string, waitFree bool) {
 	client := resty.New()
 	resp, err := client.R().
@@ -153,11 +154,12 @@ func GetPointsDetail(pin, wsKey string, waitFree bool) {
 		panic(exception.New("获取收益汇总信息失败"))
 	}
 	res := gjson.Get(resp.String(), "result").Get("pointInfos").Array()
-	model.PointsDetailMap[pin] = nil
+	model.PointsDetailMap.Clear(pin)
 	for _, v := range res {
 		m := v.Map()
 		r := &model.PointsDetail{}
-		r.Name = model.MacConvertName(pin, m["mac"].String())
+		r.Name = model.RouterMap.MacConvertName(pin, m["mac"].String())
+		r.Mac = m["mac"].String()
 		r.TodayIncome = m["todayPointIncome"].Int()
 		r.AllIncome = m["allPointIncome"].Int()
 		time.Sleep(time.Millisecond * 500)
@@ -166,21 +168,43 @@ func GetPointsDetail(pin, wsKey string, waitFree bool) {
 		if waitFree {
 			r.WaitFreeDay = GetWaitFreeDay(m["mac"].String(), wsKey)
 		}
-		model.PointsDetailMap[pin] = append(model.PointsDetailMap[pin], r)
+		model.PointsDetailMap.Append(pin, r)
 		GetPointsDetailTotal(pin, wsKey)
 	}
 }
 
-//获取总收益、剩余总收益
+// GetPointsDetailTotal 获取总收益、剩余总收益
 func GetPointsDetailTotal(pin, wsKey string) {
 	m := &model.TotalPointsDetail{}
 	m.TotalToday = GetTodayPoints(wsKey)
 	var total1, total2 int64
-	for _, v := range model.PointsDetailMap[pin] {
+	for _, v := range model.PointsDetailMap.Read(pin) {
 		total1 += v.AllIncome
 		total2 += v.RemainIncome
 	}
 	m.TotalIncome = total1
 	m.TotalRemain = total2
-	model.TotalPointsMap[pin] = m
+	model.TotalPointsMap.Set(pin, m)
+}
+
+// RebootRouter 重启路由器
+func RebootRouter(feedId string, pin string, tgt string) {
+	accessKey := "b8f9c108c190a39760e1b4e373208af5cd75feb4"
+	body := `{"feed_id":"` + feedId + `","command":[{"stream_id":"SetParams","current_value":"{\n  \"cmd\" : \"reboot_system\"\n}"}]}`
+	client := resty.New()
+	resp, err := client.R().
+		SetHeaders(map[string]string{
+			"Authorization": cryptokit.EncodeAuthorization(body, accessKey),
+			"timestamp":     time.Now().Format(timekit.TimeLayout),
+			"accesskey":     accessKey,
+			"tgt":           tgt,
+			"User-Agent":    "ios",
+			"appkey":        "996",
+			"pin":           pin,
+		}).
+		SetBody(body).
+		Post("https://gw.smart.jd.com/f/service/controlDevice?plat=ios&hard_platform=iPhone11%2C8&app_version=6.5.5&plat_version=13.7&channel=jd")
+	if err != nil || resp.IsError() || gjson.Get(resp.String(), "status").String() != "0" {
+		panic(exception.New("重启路由器失败"))
+	}
 }

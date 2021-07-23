@@ -8,6 +8,20 @@
 
 目前支持采集的数据有：IP地址、CPU占用、内存使用率、ROM信息、上传下载速度、在线时长。数据采集为1分钟1次，可自行在代码中调整，数据采集走的是京东云无线宝app的接口，建议采集频率不要太高。
 
+## 更新日志
+
+2021.04.07 
+
+1、修复了一台路由器离线导致其他设备无法采集数据的bug
+
+2021.07.23 
+
+1、修复了多用户多协程读写map导致程序panic的bug
+
+2、新增获取路由器离线信息，并且离线之后不再采集数据的功能
+
+3、新增自动重启功能，每日定时检测每台设备收益，当收益低于设定的阈值即重启路由器（使用该功能需要使用京东云无线宝作为一级路由器拨号）
+
 ## 部署
 
 #### 准备工作
@@ -26,7 +40,7 @@
 
 2、填写influxdb相关信息
 
-3、使用charles或其他抓包工具如HttpCanary(手机端) 抓取数据包(https://gw.smart.jd.com/f/service/xxxxxxxxx开头的)，请求头(request header)中的tgt、pin参数
+3、使用charles或其他抓包工具如HttpCanary(手机端) 抓取数据包(https://gw.smart.jd.com/f/service/xxxxxxxxx)开头的，请求头(request header)中的tgt、pin参数
 
 > 如果不会抓包，安卓手机有root权限的可以用ES文件管理等进入打开"/data/data/com.jdcloud.mt.smartrouter/shared_prefs/jdc_mt_secured_store.xml"文件，找到"loginpin和wskey"的值即可。
 
@@ -36,7 +50,9 @@
 
 6、collect为是否采集路由器信息，如果只需要积分推送，那么不需要部署influx和grafana，只需要部署好企业微信推送服务并且关闭collect
 
-7、wechat.api为微信推送的api地址，wechat.token请参考https://github.com/myleo1/wechat-work-pusher
+7、reboot为自动重启路由器的收益阈值，当收益低于这个阈值时，自动重启路由器，不填写或者填写0为关闭自动重启功能
+
+8、wechat.api为微信推送的api地址，wechat.token请参考https://github.com/myleo1/wechat-work-pusher
 
 ## Grafana配置
 
@@ -58,10 +74,8 @@ TODO
 
 ## TODO
 
-1、如果使用的人多可以完善一键部署
+1、一键部署
 
-2、grafana需要一定数据库基础，后续考虑使用echarts做web端或者小程序端可视化
+2、开发可视化前端（云监工web应用）
 
 3、修改抓包登陆，直接手机验证码登陆
-
-4、完善成一个完整的云监工web应用（遥遥无期）

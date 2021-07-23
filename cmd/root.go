@@ -37,6 +37,9 @@ func taskStart(c *config.Config) {
 	if c.Collect {
 		task.CollectTask(c.Pin, c.Tgt)
 	}
+	if c.Reboot != config.DoNOTReboot {
+		task.RebootTask(c.Pin, c.Tgt, c.User, c.WaitFree)
+	}
 	task.UpdateRouterList(c.Pin, c.Tgt)
 	task.PushPointTask(c.Pin, c.Tgt, c.User, c.WaitFree)
 	cronkit.Scheduler().Start()

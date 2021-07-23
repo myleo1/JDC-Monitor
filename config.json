@@ -14,7 +14,8 @@
       "pin": "",
       "tgt": "",
       "getZXQC": true,
-      "collect": false
+      "collect": false,
+      "reboot": 100
     }
   ],
   "wechat": {

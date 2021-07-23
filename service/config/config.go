@@ -13,10 +13,13 @@ type Config struct {
 	WaitFree bool
 	//是否采集路由器数据
 	Collect bool
-	User    string
+	//重启路由器收益阈值
+	Reboot int64
+	User   string
 }
 
-var Conf []*Config
+// Conf 用于区分每个用户的config,key为pin,此处map不同时读写,可不加锁
+var Conf = map[string]*Config{}
 
 func Init() {
 	configReader := configkit.Get("jd", "")
@@ -44,6 +47,7 @@ func Init() {
 		c.Tgt = cast.ToString(m["tgt"])
 		c.WaitFree = cast.ToBool(m["getZXQC"])
 		c.Collect = cast.ToBool(m["collect"])
-		Conf = append(Conf, c)
+		c.Reboot = cast.ToInt64(m["reboot"])
+		Conf[c.Pin] = c
 	}
 }

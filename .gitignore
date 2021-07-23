@@ -19,3 +19,4 @@ vendor/
 .DS_Store
 log
 build/
+config-deploy.json
