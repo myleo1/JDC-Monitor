@@ -40,7 +40,7 @@
 
 2、填写influxdb相关信息
 
-3、使用charles或其他抓包工具如HttpCanary(手机端) 抓取数据包(https://gw.smart.jd.com/f/service/xxxxxxxxx)开头的，请求头(request header)中的tgt、pin参数
+3、使用charles或其他抓包工具如HttpCanary(手机端) 抓取数据包https://gw.smart.jd.com/f/service/xxxxxxxxx  开头的，请求头(request header)中的tgt、pin参数
 
 > 如果不会抓包，安卓手机有root权限的可以用ES文件管理等进入打开"/data/data/com.jdcloud.mt.smartrouter/shared_prefs/jdc_mt_secured_store.xml"文件，找到"loginpin和wskey"的值即可。
 
