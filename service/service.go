@@ -1,6 +1,8 @@
 package service
 
 import (
+	"JDC-Monitor/service/cryptokit"
+	"JDC-Monitor/service/model"
 	"github.com/go-resty/resty/v2"
 	"github.com/mizuki1412/go-core-kit/class/exception"
 	"github.com/mizuki1412/go-core-kit/library/jsonkit"
@@ -8,8 +10,6 @@ import (
 	"github.com/mizuki1412/go-core-kit/service/logkit"
 	"github.com/spf13/cast"
 	"github.com/tidwall/gjson"
-	"jd-mining-server/service/cryptokit"
-	"jd-mining-server/service/model"
 	"time"
 )
 

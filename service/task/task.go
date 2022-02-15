@@ -1,15 +1,15 @@
 package task
 
 import (
+	"JDC-Monitor/service"
+	"JDC-Monitor/service/config"
+	"JDC-Monitor/service/model"
+	"JDC-Monitor/service/wechat"
 	"fmt"
 	"github.com/mizuki1412/go-core-kit/library/commonkit"
 	"github.com/mizuki1412/go-core-kit/service/cronkit"
 	"github.com/mizuki1412/go-core-kit/service/influxkit"
 	"github.com/spf13/cast"
-	"jd-mining-server/service"
-	"jd-mining-server/service/config"
-	"jd-mining-server/service/model"
-	"jd-mining-server/service/wechat"
 	"time"
 )
 
@@ -25,7 +25,7 @@ func CollectTask(pin, tgt string) {
 	cronkit.AddFunc("@every 1m", func() {
 		for _, v := range model.RouterMap.Read(pin) {
 			if v.Status != model.RouterStatusOffline {
-				commonkit.RecoverFuncWrapper(func() {
+				_ = commonkit.RecoverFuncWrapper(func() {
 					s := service.GetPCDNStatus(v.FeedId, pin, tgt)
 					sql := fmt.Sprintf("%s ip=%s,online=%s,cpu=%s,mem=%s,upload=%s,download=%s,rom=%s %d", v.Mac, influxkit.Decorate(s.Ip), s.OnlineTime, s.Cpu, s.Mem, s.Upload, s.Download, influxkit.Decorate(s.Rom), time.Now().UnixNano())
 					influxkit.WriteDefaultDB(sql)
@@ -42,7 +42,7 @@ func RebootTask(pin, tgt, user string, waitFree bool) {
 		//tgt与wsKey相等
 		service.GetPointsDetail(pin, tgt, waitFree)
 		for _, v := range model.PointsDetailMap.Read(pin) {
-			commonkit.RecoverFuncWrapper(func() {
+			_ = commonkit.RecoverFuncWrapper(func() {
 				if threshold := config.Conf[pin].Reboot; v.TodayIncome < threshold {
 					feedId := model.RouterMap.MacConvertFeedId(pin, v.Mac)
 					service.RebootRouter(feedId, pin, tgt)

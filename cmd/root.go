@@ -1,12 +1,12 @@
 package cmd
 
 import (
+	"JDC-Monitor/service"
+	"JDC-Monitor/service/config"
+	"JDC-Monitor/service/task"
 	"github.com/mizuki1412/go-core-kit/init/initkit"
 	"github.com/mizuki1412/go-core-kit/service/cronkit"
 	"github.com/spf13/cobra"
-	"jd-mining-server/service"
-	"jd-mining-server/service/config"
-	"jd-mining-server/service/task"
 )
 
 func init() {
@@ -14,7 +14,7 @@ func init() {
 }
 
 var rootCmd = &cobra.Command{
-	Use: "jd-mining-server",
+	Use: "JDC-Monitor",
 	Run: func(cmd *cobra.Command, args []string) {
 		initkit.BindFlags(cmd)
 		//init

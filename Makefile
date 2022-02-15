@@ -1,4 +1,4 @@
-BINARY=jd-mining-server
+BINARY=JDC-Monitor
 VERSION=1.0.0
 DATE=`date +%FT%T%z`
 LDFLAGS=-ldflags "-s -w"

@@ -1,6 +1,6 @@
 {
   "project": {
-    "dir": "/Users/leo/go/src/jd-mining-server"
+    "dir": "/Users/leo/go/src/JDC-Monitor"
   },
   "influx": {
     "url": "",

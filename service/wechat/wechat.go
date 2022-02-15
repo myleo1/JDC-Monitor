@@ -1,10 +1,10 @@
 package wechat
 
 import (
+	"JDC-Monitor/service/config"
 	"fmt"
 	"github.com/mizuki1412/go-core-kit/library/httpkit"
 	"github.com/mizuki1412/go-core-kit/service/configkit"
-	"jd-mining-server/service/config"
 	"net/http"
 )
 
