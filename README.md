@@ -38,7 +38,7 @@
 
 2、部署influxdb及grafana，建议使用docker部署，具体部署方法请使用搜索引擎搜索
 
-3、部署好influx后建一个表，并记住表名，后面要用
+3、部署好influx后建一个库，并记住库名，后面要用
 
 #### config.json配置
 
