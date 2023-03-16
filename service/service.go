@@ -24,7 +24,7 @@ func InitRouterList(pin, tgt string) {
 func GetPCDNStatus(feedId string, pin string, tgt string) *model.RouterStatus {
 	accessKey := "b8f9c108c190a39760e1b4e373208af5cd75feb4"
 	body := `{"feed_id":"` + feedId + `","command":[{"stream_id":"SetParams","current_value":"{\n  \"cmd\" : \"get_router_status_detail\"\n}"}]}`
-	client := resty.New()
+	client := resty.New().SetRetryCount(5).SetRetryWaitTime(1 * time.Second)
 	resp, err := client.R().
 		SetHeaders(map[string]string{
 			"Authorization": cryptokit.EncodeAuthorization(body, accessKey),
@@ -58,7 +58,7 @@ func GetPCDNStatus(feedId string, pin string, tgt string) *model.RouterStatus {
 func ListRouter(pin string, tgt string) []*model.Router {
 	accessKey := "b8f9c108c190a39760e1b4e373208af5cd75feb4"
 	body := `{"appversion":"2.7.3","appplatform":"iPhone11,8","appplatformversion":"13.7"}`
-	client := resty.New()
+	client := resty.New().SetRetryCount(5).SetRetryWaitTime(1 * time.Second)
 	resp, err := client.R().
 		SetHeaders(map[string]string{
 			"Authorization": cryptokit.EncodeAuthorization(body, accessKey),
@@ -92,7 +92,7 @@ func ListRouter(pin string, tgt string) []*model.Router {
 
 // GetTotalPoints 获取剩余总收益(扣除已兑换的) -未使用
 func GetTotalPoints(wsKey string) int64 {
-	client := resty.New()
+	client := resty.New().SetRetryCount(5).SetRetryWaitTime(1 * time.Second)
 	resp, err := client.R().
 		SetHeader("wskey", wsKey).
 		Get("https://router-app-api.jdcloud.com/v1/regions/cn-north-1/pinTotalAvailPoint")
@@ -105,7 +105,7 @@ func GetTotalPoints(wsKey string) int64 {
 
 // GetTodayPoints 获取今日总收益
 func GetTodayPoints(wsKey string) int64 {
-	client := resty.New()
+	client := resty.New().SetRetryCount(5).SetRetryWaitTime(1 * time.Second)
 	resp, err := client.R().
 		SetHeader("wskey", wsKey).
 		Get("https://router-app-api.jdcloud.com/v1/regions/cn-north-1/todayPointIncome")
@@ -118,7 +118,7 @@ func GetTodayPoints(wsKey string) int64 {
 
 // GetRouterPoints 获取单个路由器总收益(扣除已兑换的)
 func GetRouterPoints(mac, wsKey string) int64 {
-	client := resty.New()
+	client := resty.New().SetRetryCount(5).SetRetryWaitTime(1 * time.Second)
 	resp, err := client.R().
 		SetHeader("wskey", wsKey).
 		SetQueryParam("mac", mac).
@@ -132,7 +132,7 @@ func GetRouterPoints(mac, wsKey string) int64 {
 
 // GetWaitFreeDay 获取单个总收益、坐享其成打卡天数
 func GetWaitFreeDay(mac, wsKey string) int64 {
-	client := resty.New()
+	client := resty.New().SetRetryCount(5).SetRetryWaitTime(1 * time.Second)
 	resp, err := client.R().
 		SetHeader("wskey", wsKey).
 		SetQueryParam("mac", mac).
@@ -146,7 +146,7 @@ func GetWaitFreeDay(mac, wsKey string) int64 {
 
 // GetPointsDetail 获取单台总收益、今日收益汇总
 func GetPointsDetail(pin, wsKey string, waitFree bool) {
-	client := resty.New()
+	client := resty.New().SetRetryCount(5).SetRetryWaitTime(1 * time.Second)
 	resp, err := client.R().
 		SetHeader("wskey", wsKey).
 		Get("https://router-app-api.jdcloud.com/v1/regions/cn-north-1/todayPointDetail")
@@ -191,7 +191,7 @@ func GetPointsDetailTotal(pin, wsKey string) {
 func RebootRouter(feedId string, pin string, tgt string) {
 	accessKey := "b8f9c108c190a39760e1b4e373208af5cd75feb4"
 	body := `{"feed_id":"` + feedId + `","command":[{"stream_id":"SetParams","current_value":"{\n  \"cmd\" : \"reboot_system\"\n}"}]}`
-	client := resty.New()
+	client := resty.New().SetRetryCount(5).SetRetryWaitTime(1 * time.Second)
 	resp, err := client.R().
 		SetHeaders(map[string]string{
 			"Authorization": cryptokit.EncodeAuthorization(body, accessKey),
