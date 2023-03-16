@@ -1,3 +1,4 @@
+export GO111MODULE=on
 BINARY=JDC-Monitor
 BUILD_DIR=build
 VERSION=v1.0.0
