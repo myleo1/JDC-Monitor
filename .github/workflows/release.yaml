@@ -10,14 +10,14 @@ jobs:
     strategy:
       matrix:
         platform: [ ubuntu-latest ]
-        go-version: [ 1.19 ]
+        go-version: [ 1.17 ]
     name: Release
     runs-on: ${{ matrix.platform }}
     steps:
       - name: Prerelease
         uses: irongut/EditRelease@v1.2.0
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.MY_TOKEN }}
           id: ${{ github.event.release.id }}
           prerelease: true
 
