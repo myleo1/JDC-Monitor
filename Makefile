@@ -1,25 +1,36 @@
 BINARY=JDC-Monitor
-VERSION=1.0.0
+BUILD_DIR=build
+VERSION=v1.0.0
 DATE=`date +%FT%T%z`
-LDFLAGS=-ldflags "-s -w"
-.PHONY: build deploy
+GO_VERSION=`go version`
+LDFLAGS="-s -w -X main.version=${VERSION} -X 'main.date=${DATE}' -X 'main.goVersion=${GO_VERSION}'"
+.PHONY: build
+OS_ARCH=darwin:amd64 darwin:arm64 linux:386 linux:amd64 linux:arm linux:arm64 linux:mips:softfloat linux:mipsle:softfloat linux:mips64 linux:mips64le linux:riscv64 freebsd:386 freebsd:amd64 windows:386 windows:amd64 windows:arm64
 
 default:
 	@echo ${BINARY}
 	@echo ${VERSION}
 	@echo ${DATE}
+	@echo ${GO_VERSION}
 
-build:
-	@GOOS=linux GOARCH=amd64 go build -trimpath -o ${BINARY} ${LDFLAGS}
-	@echo "[ok] build ${BINARY}"
-	@upx -9 ${BINARY} -o ${BINARY}-upx
-	@rm -r ${BINARY}
-	@mv ${BINARY}-upx ${BINARY}
+jdc: clean
+	@CGO_ENABLED=0 go build -trimpath -ldflags $(LDFLAGS) -o ./build/bin/${BINARY} main.go
 
-deploy:build
-	@scp -P 55025 ${BINARY} root@192.168.0.188:~/
-	@ssh -p 55025 root@192.168.0.188 "docker-compose -f /root/scripts/docker-app.yml --compatibility stop ${BINARY}"
-	@ssh -p 55025 root@192.168.0.188 "mv ${BINARY} /volume2/apps/${BINARY}"
-	@ssh -p 55025 root@192.168.0.188 "docker-compose -f /root/scripts/docker-app.yml --compatibility up -d ${BINARY}"
-	@echo "[ok] deploy ${BINARY}"
+build: clean app
 
+clean:
+	@rm -rf ${BUILD_DIR}
+
+app:
+	@$(foreach n, $(OS_ARCH),\
+		os=$(shell echo "$(n)" | cut -d : -f 1);\
+		arch=$(shell echo "$(n)" | cut -d : -f 2);\
+		gomips=$(shell echo "$(n)" | cut -d : -f 3);\
+		target_suffix=$${os}-$${arch};\
+		echo "Build $${os}-$${arch}...";\
+		env CGO_ENABLED=0 GOOS=$${os} GOARCH=$${arch} GOMIPS=$${gomips} go build -trimpath -ldflags $(LDFLAGS) -o ./build/${BINARY}-$${target_suffix} main.go;\
+		echo "Build $${os}-$${arch} done";\
+	)
+	@mv ./build/${BINARY}-windows-386 ./build/${BINARY}-windows-386.exe
+	@mv ./build/${BINARY}-windows-amd64 ./build/${BINARY}-windows-amd64.exe
+	@mv ./build/${BINARY}-windows-arm64 ./build/${BINARY}-windows-arm64.exe
