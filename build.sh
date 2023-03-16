@@ -23,7 +23,11 @@ for i in $(find . -type f -name "$appName-linux-*"); do
 done
 
 for i in $(find . -type f -name "$appName-darwin-*"); do
-  upx --lzma --best "$i" -o $appName
+  if [[ "$i" == "./$appName-darwin-arm64"* ]]; then
+    cp "$i" $appName
+  else
+    upx --lzma --best "$i" -o $appName
+  fi
   tar -czvf compress/"$i".tar.gz $appName
   rm -f $appName
 done
