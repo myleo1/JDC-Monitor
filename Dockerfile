@@ -1,4 +1,4 @@
-FROM golang:1.17 as builder
+FROM golang:1.20 as builder
 WORKDIR /go/src/JDC-Monitor
 COPY . .
 RUN make jdc
