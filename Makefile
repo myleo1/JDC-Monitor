@@ -1,6 +1,6 @@
 BINARY=JDC-Monitor
 BUILD_DIR=build
-VERSION=v1.3
+VERSION=v1.4
 DATE=`date +%FT%T%z`
 GO_VERSION=`go version`
 LDFLAGS="-s -w -X main.version=${VERSION} -X 'main.date=${DATE}' -X 'main.goVersion=${GO_VERSION}'"
