@@ -16,7 +16,7 @@ import (
 func UpdateRouterList(pin, tgt string) {
 	//更新路由器列表
 	cronkit.AddFunc("@every 10m", func() {
-		model.RouterMap.Set(pin, service.ListRouter(pin, tgt))
+		model.RouterMap.Set(pin, service.ListRouter(tgt))
 	})
 }
 
@@ -26,7 +26,7 @@ func CollectTask(pin, tgt string) {
 		for _, v := range model.RouterMap.Read(pin) {
 			if v.Status != model.RouterStatusOffline {
 				_ = commonkit.RecoverFuncWrapper(func() {
-					s := service.GetPCDNStatus(v.FeedId, pin, tgt)
+					s := service.GetPCDNStatus(v.FeedId, tgt)
 					sql := fmt.Sprintf("%s ip=%s,online=%s,cpu=%s,mem=%s,upload=%s,download=%s,rom=%s %d", v.Mac, influxkit.Decorate(s.Ip), s.OnlineTime, s.Cpu, s.Mem, s.Upload, s.Download, influxkit.Decorate(s.Rom), time.Now().UnixNano())
 					influxkit.WriteDefaultDB(sql)
 					//log.Println(sql)
@@ -45,7 +45,7 @@ func RebootTask(pin, tgt, user string, waitFree bool) {
 			_ = commonkit.RecoverFuncWrapper(func() {
 				if threshold := config.Conf[pin].Reboot; v.TodayIncome < threshold {
 					feedId := model.RouterMap.MacConvertFeedId(pin, v.Mac)
-					service.RebootRouter(feedId, pin, tgt)
+					service.RebootRouter(feedId, tgt)
 					content := fmt.Sprintf("********京东云矿机********\n\n【%s】收益低于%s,已重启", v.Name, cast.ToString(threshold))
 					wechat.Push2Wechat(user, content)
 				}

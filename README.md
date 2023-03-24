@@ -28,23 +28,25 @@
 
 2、填写influxdb相关信息
 
-3、使用charles或其他抓包工具如HttpCanary(手机端) 抓取数据包https://gw.smart.jd.com/f/service/xxxxxxxxx  开头的，请求头(request header)中的tgt、pin参数
+3、使用charles或其他抓包工具如HttpCanary(手机端) 抓取数据包https://gw.smart.jd.com/f/service/xxxxxxxxx  开头的，请求头(request header)中的tgt参数
 
-> 如果不会抓包，安卓手机有root权限的可以用ES文件管理等进入打开"/data/data/com.jdcloud.mt.smartrouter/shared_prefs/jdc_mt_secured_store.xml"文件，找到"loginpin和wskey"的值即可。
+> 如果不会抓包，安卓手机有root权限的可以用ES文件管理等进入打开"/data/data/com.jdcloud.mt.smartrouter/shared_prefs/jdc_mt_secured_store.xml"文件，找到"wskey"的值即可，wskey与tgt是相等的。
 
-4、config中的user为接收推送信息的微信号，如使用其他推送方式请自行修改
+4、config中的pin为早期版本接口所需参数，京东云无线宝APP更新后请求不需要pin了，鉴于pin在本项目中作为map的key用于区分不同用户的路由器，目前可以理解为与user类似，可以与user保持一致，在配置多用户时保证pin不重复即可
 
-5、getZXQC为是否获取坐享其成打卡天数信息，由于有些设备不是坐享其成机型，可自行关闭
+5、config中的user为接收推送信息的微信号，如使用其他推送方式请自行修改
 
-6、collect为是否采集路由器信息，如果只需要积分推送，那么不需要部署influx和grafana，只需要部署好企业微信推送服务并且关闭collect
+6、getZXQC为是否获取坐享其成打卡天数信息，由于有些设备不是坐享其成机型，可自行关闭
 
-7、reboot为自动重启路由器的收益阈值，当收益低于这个阈值时，自动重启路由器，不填写或者填写0为关闭自动重启功能
+7、collect为是否采集路由器信息，如果只需要积分推送，那么不需要部署influx和grafana，只需要部署好企业微信推送服务并且关闭collect
 
-8、wechat.api为微信推送的api地址，wechat.token请参考https://github.com/myleo1/wechat-work-pusher
+8、reboot为自动重启路由器的收益阈值，当收益低于这个阈值时，自动重启路由器，不填写或者填写0为关闭自动重启功能
+
+9、wechat.api为微信推送的api地址，wechat.token请参考https://github.com/myleo1/wechat-work-pusher
 
 ## Grafana配置
 
-TODO
+见grafana/template.json
 
 ## 效果展示
 
@@ -57,13 +59,3 @@ TODO
 ### 积分推送展示
 
 ![image](https://user-images.githubusercontent.com/66349676/111759767-ecace780-88d8-11eb-9bfa-05df471bf51c.png)
-
-
-
-## TODO
-
-1、一键部署
-
-2、开发可视化前端（云监工web应用）
-
-3、修改抓包登陆，直接手机验证码登陆
